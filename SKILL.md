@@ -107,6 +107,12 @@ Generate publication-quality PPTs for numerical simulation (FEA/FDM/DEM) compari
 - **边距**：左右 ≥ 0.3"，上下 ≥ 0.5"（含标题栏）
 - **表格对齐（MANDATORY，2026-08 用户要求）**：表格单元格文字必须**水平居中 + 上下垂直居中**（`cell.vertical_anchor = MSO_ANCHOR.MIDDLE` + 段落 `PP_ALIGN.CENTER`），禁止默认的顶部对齐；表头同样适用
 
+### File Naming Rules (MANDATORY)
+- **版本信息放文件名最前**：所有交付文件（PPT/Word/PDF 等）命名时，版本号必须置于文件名开头，格式 `v{版本号}_{主题描述}.{扩展名}`，如 `v1_威204水平层敏感性分析.pptx`、`v2_威204水平层敏感性分析.docx`
+- **禁止后缀式版本号**：不允许 `主题描述_v2.pptx` 这类版本号放末尾的命名
+- **版本号递增自动取**：生成脚本用循环探测下一个未占用版本号（v1→v2→v3…），首次交付 v1，重大修改递增；主题描述部分保持稳定不变
+- **同主题多格式**：同一主题的 PPT/Word/PDF 版本号一致（v2_主题.pptx 与 v2_主题.docx 为同一版本的不同格式）
+
 ### Standard Slide Structure (18 pages)
 1. **Cover** — title, subtitle, decorative lines, date
 2. **Model Overview** — parameters, scheme description
