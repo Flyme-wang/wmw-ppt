@@ -101,6 +101,11 @@ Generate publication-quality PPTs for numerical simulation (FEA/FDM/DEM) compari
 - Images: **equal aspect ratio** (PIL-computed), thin blue border (1.2pt)
 - **图片等比例缩放（MANDATORY）**：所有截图/图表插入 PPT 时必须保持原始宽高比，**禁止拉伸变形**。使用 PIL 计算等比缩放尺寸，居中放置于预留位置
 - Comparison layout: **1×2** (single variable) or **2×2** (two variables)
+- **5 图对比排版（MANDATORY，2026-08 用户要求）**：5 个模型/工况同变量对比时**禁止 5 图横排**（每图仅 2.25" 宽，过小），必须用 **3+2 两行布局**：上行 3 图 + 下行 2 图，每图宽 3.27" 高 2.45"（4:3），面积约为横排的 2 倍，清晰可读
+  - 布局参数（16:9，13.333×7.5"）：行1 y=0.85，3 图 x0=(13.333-3w-2gap)/2；行2 y=行1图底+0.64，2 图 x0=(13.333-2w-gap)/2；w=3.27，gap=0.25
+  - 每格图注两行：第一行模型名（15pt bold 中蓝），第二行观察结论（12pt），不用独立模型标签
+  - 页脚统一色标说明 12pt 居中 y=6.94
+  - 代码模板见 Step 5 的 `add_5fig_grid_32`
 - Cover & conclusion: **NO background** (white)
 - Content slides: light blue background `#F0F6FA`
 - **图文分栏**：图表占页面 60-70%，文字占 30-40%
@@ -332,10 +337,35 @@ def set_font(run, size_pt=16, bold=False, color=COLOR_DARK_TEXT):
 def add_image_fixed_ratio(slide, img_path, left, top, max_w, max_h):
     img = Image.open(img_path)
     ratio = min(max_w/img.size[0], max_h/img.size[1])
-    new_w, new_h = int(img.size[0]*ratio), int(img.size[1]*ratio)
-    left_adj = left + (max_w - new_w) // 2
-    top_adj = top + (max_h - new_h) // 2
-    slide.shapes.add_picture(img_path, left_adj, top_adj, new_w, new_h)
+    # 必须保持浮点！int() 截断会破坏比例（如 1.6875"→1" 导致比例失真）
+    new_w = img.size[0]*ratio
+    new_h = img.size[1]*ratio
+    left_adj = left + (max_w - new_w)/2
+    top_adj = top + (max_h - new_h)/2
+    slide.shapes.add_picture(img_path, Inches(left_adj), Inches(top_adj),
+                             Inches(new_w), Inches(new_h))
+```
+
+**5 图 3+2 两行排版** (MANDATORY for 5-model comparison, 2026-08):
+```python
+# 5图3+2两行布局: 上行3图+下行2图, 每格图注=模型名(bold 15pt)+观察(12pt)
+# 图宽3.27"高2.45"(4:3), 面积约为5图横排(2.25")的2倍, 更清晰
+# 调用: add_5fig_grid_32(slide, lambda m: snap_f(m, face), notes, view_desc)
+def add_5fig_grid_32(slide, img_getter, notes, view_desc):
+    IMG_W, IMG_H, GAP, TOP_Y = 3.27, 2.45, 0.25, 0.85
+    x1 = (13.333 - (3*IMG_W + 2*GAP)) / 2
+    x2 = (13.333 - (2*IMG_W + GAP)) / 2
+    row1 = [(x1, TOP_Y), (x1+IMG_W+GAP, TOP_Y), (x1+2*(IMG_W+GAP), TOP_Y)]
+    row2_y = TOP_Y + IMG_H + 0.04 + 0.46 + 0.14
+    row2 = [(x2, row2_y), (x2+IMG_W+GAP, row2_y)]
+    for i, ((m, cn), (px, py)) in enumerate(zip(MODELS, row1+row2)):
+        add_image_fixed_ratio(slide, img_getter(m), px, py, IMG_W, IMG_H)
+        add_text(slide, px, py+IMG_H+0.04, IMG_W, 0.46,
+                 [(cn, 15, True, C_MED), (notes[i], 12, False, C_TEXT)],
+                 align=PP_ALIGN.CENTER, line_spacing=1.15)
+    add_text(slide, 0.3, 6.94, 12.73, 0.35,
+             [(view_desc, 12, False, RGBColor(0x88, 0x88, 0x88))],
+             align=PP_ALIGN.CENTER, line_spacing=1.0)
 ```
 
 **Table cells** (水平居中 + 上下垂直居中，MANDATORY):
@@ -389,3 +419,5 @@ for p in cell.text_frame.paragraphs:
 | `setPrimaryVariable` TypeError | Tensor: positional `('S', INTEGRATION_POINT, (INVARIANT, 'Mises'))`; scalar: `(variableLabel='PEEQ', outputPosition=INTEGRATION_POINT)` |
 | Contact output (CSLIP/CSHEAR/CPRESS) not visible in viewport | Contact variables are not directly available via `setPrimaryVariable`; use matplotlib heatmaps or field-value extraction instead |
 | Images distorted in PPT | Always use PIL to compute aspect-ratio-preserving dimensions; never hardcode width/height that differ from source ratio |
+| `int()` truncation distorts ratio | `add_image_fixed_ratio` 内 new_w/new_h 必须保持浮点（勿 int()），Inches() 接受浮点；否则 1.6875"→1" 比例失真 |
+| 5 图横排每图过小 | 5 模型同变量对比禁止横排（2.25" 过小），必须用 3+2 两行布局（3.27"，add_5fig_grid_32） |
