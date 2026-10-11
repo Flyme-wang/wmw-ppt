@@ -52,6 +52,26 @@ Generate publication-quality PPTs for numerical simulation (FEA/FDM/DEM) compari
 | 分栏布局 | 合理使用左右分栏（图左文右 / 图右文左） |
 | 留白充足 | 页面边距 ≥ 0.3"，元素间距 ≥ 0.2" |
 | 视觉优先位 | 重点结论放在页面上半部或左侧（视觉优先位置） |
+| **页码必备** | **每一页都必须有页码**（封面可省略），位于右下角，用**原生文本框**写入（禁止用图片或截图）；序号必须与实际页序一致，插入内容后要重新核对 |
+
+#### 页码实现（2026-10 用户规范，强制执行）
+
+```python
+def page_no(slide, n, total=None):
+    """每页右下角原生文本框页码。n 为实际页序，必须逐页核对。"""
+    txt = str(n) if total is None else "%d / %d" % (n, total)
+    tb = slide.shapes.add_textbox(Inches(12.6), Inches(7.08), Inches(0.6), Inches(0.3))
+    p = tb.text_frame.paragraphs[0]
+    p.alignment = PP_ALIGN.RIGHT
+    r = p.add_run(); r.text = txt
+    set_font(r, 10, False, RGBColor(0x7F, 0x8C, 0x8D))
+```
+
+- **必须逐页调用**，封面页（第 1 页）可留空但**其余每页不得遗漏**
+- 用「封面不编号」方案时，正文首页仍写实际页序（即正文首页显示 2），不要重新从 1 开始
+- **插入/删除页面后必须重排**：曾经出现过符号页与公式页插到封面之前、导致后续页码整体错位的缺陷
+- 交付前用渲染图逐页确认右下角有号，且数值连续无跳号
+
 
 ### Per-Slide Output Format
 每页 PPT 必须包含以下要素：
@@ -421,3 +441,4 @@ for p in cell.text_frame.paragraphs:
 | Images distorted in PPT | Always use PIL to compute aspect-ratio-preserving dimensions; never hardcode width/height that differ from source ratio |
 | `int()` truncation distorts ratio | `add_image_fixed_ratio` 内 new_w/new_h 必须保持浮点（勿 int()），Inches() 接受浮点；否则 1.6875"→1" 比例失真 |
 | 5 图横排每图过小 | 5 模型同变量对比禁止横排（2.25" 过小），必须用 3+2 两行布局（3.27"，add_5fig_grid_32） |
+| 页码缺失或错位 | 插入/删除页面后未重排 | 每页调用 page_no()；改版后重新核对实际页序，逐页渲染确认 |
