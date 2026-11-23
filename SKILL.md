@@ -1,11 +1,14 @@
 ---
 name: wmw-ppt
-description: Generate professional scientific research PPTs for FEA/numerical simulation comparison. Covers full workflow: wei204 view screenshot capture with unified colorbar, matplotlib charts (bar, radar, change-rate), and python-pptx slide assembly with soft-blue academic style. Use when user asks to create PPT for simulation results, model comparison, mechanism analysis, or research reporting.
+description: Create scientific PowerPoint presentations for numerical simulation comparisons and CNPC oil and gas project acceptance reports (中石油项目结题验收), using field evidence, geological sections, and the supplied corporate template.
 ---
 
 # WMW Scientific PPT Generator
 
-Generate publication-quality PPTs for numerical simulation (FEA/FDM/DEM) comparison and analysis.
+## 先选汇报类型
+
+- **中石油项目结题验收、油田成果汇报**：采用项目方指定的母版，先读[中石油项目结题验收汇报](references/cnpc-project-acceptance.md)。用五部分组织内容，结果页上文下图，各图上方有图题，宽剖面可按地质问题拆页。需要对比模型时沿用下文统一色标和数据提取方法。
+- **数值模拟多工况对比**：下文的学术配色、分栏、对比网格和标准页序适用于此模式。已有明确项目模板和汇报要求时，优先采用指定版式。
 
 ---
 

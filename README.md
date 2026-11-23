@@ -1,6 +1,6 @@
 # wmw-ppt — 学术级科学 PPT 生成 Skill
 
-生成出版级学术 PPT 的 Qoder Skill，专为**数值模拟（FEA/FDM/DEM）多模型对比分析**设计。
+用于制作**数值模拟多模型对比**与**中石油油气项目结题验收汇报**。验收汇报沿用项目母版，按地质问题组织成果，图题在上、图表在下，剖面等比显示。具体做法见[中石油项目结题验收汇报指南](references/cnpc-project-acceptance.md)。下列蓝色学术版式用于多工况对比。
 
 ## 设计哲学
 
@@ -50,7 +50,8 @@
 ```
 wmw-ppt/
 ├── SKILL.md       # Skill 主文件（完整规范与工作流）
-└── template.md    # 版式示意图与代码片段
+├── template.md    # 学术对比版式与代码片段
+└── references/cnpc-project-acceptance.md    # 项目验收结构、结果分页与剖面展示
 ```
 
 ## 使用方式
